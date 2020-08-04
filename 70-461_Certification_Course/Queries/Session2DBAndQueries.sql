@@ -2660,3 +2660,21 @@ GROUP BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
 WHERE ENumber IS NULL)--No ORDER BY required
 SELECT COUNT(*) FROM tblTransaction
 ROLLBACK TRAN
+
+--UPDATING------------------------------------
+---NEED TO CHANGE EMPLOYEENUMBER FROM 3 TO 194
+SELECT * FROM tblEmployee WHERE EmployeeNumber = 194
+SELECT * FROM tblTransaction WHERE EmployeeNumber = 3
+SELECT * FROM tblTransaction WHERE EmployeeNumber = 194
+
+
+--OUTPUT and UPDATE EXAMPLE-------
+BEGIN TRAN
+
+UPDATE tblTransaction
+SET EmployeeNumber = 194
+OUTPUT inserted.EmployeeNumber, deleted.EmployeeNumber      --inserted.*,deleted.*    --use as a SELECT for UPDATES
+FROM tblTransaction
+WHERE EmployeeNumber = 3
+
+ROLLBACK TRAN
