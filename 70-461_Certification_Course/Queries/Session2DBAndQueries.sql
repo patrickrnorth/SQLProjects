@@ -18,9 +18,11 @@ ALTER TABLE tblEmployee
 	ADD [Department] [varchar](20) NOT NULL
 GO
 
---INSERTing data into table using the UI due to the amount of data
+--INSERTing data into table using the UI due to the amount of data unformatted
 --INSERT INTO TABLE tblEmployee([EmployeeNumber],[EmployeeFirstName],[EmployeeMiddleName],[EmployeeLastName],[EmployeeGovernmentID],[DateOfBirth])
 --VALUES(included excel spreadsheet of data in repository file: 70+461data)
+
+SELECT * FROM tblEmployee
 
 --UPDATE all empty middle names to NULL
 UPDATE tblEmployee
@@ -33,8 +35,8 @@ CREATE TABLE tblTransaction(
 	DateOfTransaction smalldatetime NULL,
 	EmployeeNumber int NOT NULL)
 
---INSERTing data into tblTransaction that was already formatted
-INSERT INTO tblTransaction VALUES		
+--INSERTing data that was already formatted into tblTransaction 
+INSERT INTO tblTransaction VALUES	
 (-964.05, '20150526', 658), 		
 (-105.23, '20150914', 987), 		
 (-506.8, '20150505', 695), 		
@@ -2537,3 +2539,27 @@ INSERT INTO tblTransaction VALUES
 (-275.64, '20141008', 471), 		
 (-868.51, '20150623', 764), 		
 (-909.29, '20140628', 526)		
+
+SELECT * FROM tblTransaction
+
+--LEFT JOIN tblEmployee and tblTransaction
+SELECT tblEmployee.EmployeeNumber, EmployeeFirstName, EmployeeLastName, sum(Amount) as SumOfAmount
+FROM tblEmployee
+LEFT JOIN tblTransaction
+ON tblEmployee.EmployeeNumber = tblTransaction.EmployeeNumber
+GROUP BY tblEmployee.EmployeeNumber, EmployeeFirstName, EmployeeLastName
+ORDER BY tblEmployee.EmployeeNumber
+
+--Derived Table
+SELECT Department
+FROM (SELECT Department, count(*) as NumberOfDeparttment
+FROM tblEmployee
+GROUP BY Department) AS newTable
+
+--Demonstrate INTO to make a new table while SELECTing
+SELECT DISTINCT Department, CONVERT(varchar(20),N'') as DepartmentHead
+INTO tblDepartment
+FROM  tblEmployee
+
+
+SELECT * FROM tblDepartment
