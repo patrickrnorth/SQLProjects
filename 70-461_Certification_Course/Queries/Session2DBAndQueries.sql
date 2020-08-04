@@ -2561,5 +2561,102 @@ SELECT DISTINCT Department, CONVERT(varchar(20),N'') as DepartmentHead
 INTO tblDepartment
 FROM  tblEmployee
 
-
 SELECT * FROM tblDepartment
+
+--LEFT JOIN of tblDepartment, tblEmployee and tblTransaction 
+SELECT tblDepartment.Department, DepartmentHead, sum(Amount) as SumOfAmount
+FROM tblDepartment
+LEFT JOIN tblEmployee
+ON tblDepartment.Department = tblEmployee.Department
+LEFT JOIN tblTransaction
+ON tblEmployee.EmployeeNumber= tblTransaction.EmployeeNumber
+GROUP BY tblDepartment.Department, DepartmentHead
+ORDER BY Department
+
+--Example of shortened Alias
+SELECT D.DepartmentHead, SUM(T.Amount) as SumOfAmount
+FROM tblDepartment as D
+LEFT JOIN tblEmployee as E
+ON D.Department = E.Department
+LEFT JOIN tblTransaction T
+ON E.EmployeeNumber = T.EmployeeNumber
+GROUP BY D.DepartmentHead
+ORDER BY D.DepartmentHead
+
+--Select all employees that have no transactions
+SELECT E.employeeNumber as ENumber, E.EmployeeFirstName,
+	   E.EmployeeLastName, T.EmployeeNumber as TNumber,
+	   sum(T.Amount) AS TotalAmount
+FROM tblEmployee AS E
+LEFT JOIN tblTransaction AS T
+ON E.EmployeeNumber = T.EmployeeNumber
+WHERE T.EmployeeNumber IS NULL
+GROUP BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
+		 E.EmployeeLastName
+ORDER BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
+		 E.EmployeeLastName
+
+--Derived LEFT JOIN form of the above Query
+SELECT *
+FROM(
+SELECT E.employeeNumber as ENumber, E.EmployeeFirstName,
+	   E.EmployeeLastName, T.EmployeeNumber as TNumber,
+	   sum(T.Amount) AS TotalAmount
+FROM tblEmployee AS E
+LEFT JOIN tblTransaction AS T
+ON E.EmployeeNumber = T.EmployeeNumber
+WHERE T.EmployeeNumber IS NULL
+GROUP BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
+		 E.EmployeeLastName) AS NewTable --have to leave the ORDER BY out of the inside query
+ORDER BY ENumber, TNumber, EmployeeFirstName, EmployeeLastName --have to change to using the Alias
+
+--Derived RIGHT JOIN which shows transactions with no employee
+SELECT *
+FROM(
+SELECT E.employeeNumber as ENumber, E.EmployeeFirstName,
+	   E.EmployeeLastName, T.EmployeeNumber as TNumber,
+	   T.Amount AS TotalAmount
+FROM tblEmployee AS E
+RIGHT JOIN tblTransaction AS T
+ON E.EmployeeNumber = T.EmployeeNumber
+WHERE E.EmployeeNumber IS NULL
+GROUP BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
+		 E.EmployeeLastName, T.Amount) AS NewTable --have to leave the ORDER BY out of the inside query
+ORDER BY ENumber, TNumber, EmployeeFirstName, EmployeeLastName --have to change to using the Alias
+
+---DELETE FROM nameOfTable WHERE important to do in that order or may delete more than you want
+BEGIN TRANSACTION--Will process the code and then undo back to here
+
+SELECT COUNT(*) FROM tblTransaction
+
+DELETE tblTransaction
+FROM tblEmployee AS E
+RIGHT JOIN tblTransaction AS T
+ON E.EmployeeNumber = T.EmployeeNumber
+WHERE E.EmployeeNumber IS NULL
+
+SELECT COUNT(*) FROM tblTransaction
+
+ROLLBACK TRANSACTION--ROLLBACK the code just used
+-----------------------------------------
+
+BEGIN TRANSACTION
+SELECT COUNT(*) FROM tblTransaction
+
+--this form of deleting will use the prewritten query
+DELETE tblTransaction
+FROM tblTransaction
+WHERE EmployeeNumber IN
+(SELECT TNumber
+FROM(
+SELECT E.EmployeeNumber as ENumber, E.EmployeeFirstName,
+	   E.EmployeeLastName, T.EmployeeNumber as TNumber,
+	   sum(T.Amount) AS TotalAmount
+FROM tblEmployee AS E
+RIGHT JOIN tblTransaction AS T
+ON E.EmployeeNumber = T.EmployeeNumber
+GROUP BY E.EmployeeNumber, T.EmployeeNumber, E.EmployeeFirstName,
+		 E.EmployeeLastName) AS NewTable 
+WHERE ENumber IS NULL)--No ORDER BY required
+SELECT COUNT(*) FROM tblTransaction
+ROLLBACK TRAN
