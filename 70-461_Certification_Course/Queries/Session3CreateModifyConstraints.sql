@@ -56,8 +56,33 @@ SELECT * FROM tblEmployee WHERE EmployeeGovernmentID = 'AB123456G'
 
 COMMIT TRAN--COMMIT the query to the DB
 
+--ADD UNIQUE CONSTRAINT to the table
+ALTER TABLE tblTransaction
+ADD CONSTRAINT unqTransaction UNIQUE(Amount, DateOfTransaction, EmployeeNumber)
 
+--DELETE employee 131 field
+DELETE FROM tblTransaction
+WHERE EmployeeNumber = 131
 
+--INSERT new data into table
+INSERT INTO tblTransaction
+VALUES (1, '2015-01-01', 131)
+--INSERT DUPLICATE data into table and it will not work due to constraint
+INSERT INTO tblTransaction
+VALUES (1, '2015-01-01', 131)
+
+--if you want to remove a constraint
+ALTER TABLE tblTransaction
+DROP CONSTRAINT unqTransaction
+
+CREATE TABLE tblTransaction2
+(Amount smallmoney NOT NULL,
+DateOfTransaction smalldatetime NOT NULL,
+EmployeeNumber INT NOT NULL,
+CONSTRAINT unqTransaction2 UNIQUE (Amount,DateOfTransaction,EmployeeNumber))
+
+--For a UNIQUE CONSTRAINT you have to drop the table, remake it, you can not alter it after it is made.
+DROP TABLE tblTransaction2
 
 
  
