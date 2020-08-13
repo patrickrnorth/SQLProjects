@@ -34,7 +34,28 @@ ROLLBACK TRAN
 --UNIQUE Contraints prevent duplicate values in whichever fields you specify
 --NOT ALLOWED due to duplicate data in field
 ALTER TABLE tblEmployee
-ADD CONSTRAINT unqGovernmentID UNIQUE (EmployeeGovernmentID);
+ADD CONSTRAINT unqGovernmentID UNIQUE (EmployeeGovernmentID); -- duplicate key was found, could not create constraint or index
+
+--Find all EmployeeGovernmentID's that are duplicates
+SELECT EmployeeGovernmentID, COUNT(EmployeeGovernmentID) AS MyCount FROM tblEmployee
+GROUP BY EmployeeGovernmentID
+HAVING COUNT(EmployeeGovernmentID) > 1
+
+--Begin the test for multiple EmployeeNumber and EmployeeGovernmentID
+BEGIN TRAN
+--DELETE all duplicates if there are more than three of them from EmployeeNumber
+DELETE FROM tblEmployee
+WHERE EmployeeNumber < 3
+
+--DELETE the top 2 duplicates of EmployeeGovernmentID for the only ID that is a duplicate in the DB
+DELETE TOP(2) FROM tblEmployee
+WHERE EmployeeGovernmentID = 'AB123456G'
+
+--Check to make sure all the only duplicates are deleted
+SELECT * FROM tblEmployee WHERE EmployeeGovernmentID = 'AB123456G'
+
+COMMIT TRAN--COMMIT the query to the DB
+
 
 
 
