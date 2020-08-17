@@ -75,6 +75,7 @@ VALUES (1, '2015-01-01', 131)
 ALTER TABLE tblTransaction
 DROP CONSTRAINT unqTransaction
 
+--CREATE a TABLE while adding a UNIQUE CONSTRAINT
 CREATE TABLE tblTransaction2
 (Amount smallmoney NOT NULL,
 DateOfTransaction smalldatetime NOT NULL,
@@ -84,7 +85,51 @@ CONSTRAINT unqTransaction2 UNIQUE (Amount,DateOfTransaction,EmployeeNumber))
 --For a UNIQUE CONSTRAINT you have to drop the table, remake it, you can not alter it after it is made.
 DROP TABLE tblTransaction2
 
+--DEFAULT CONSTRAINTS
+ALTER TABLE tblTransaction
+ADD DateOfEntry datetime
 
+--Only use FOR when altering a constraint not when creating a table with a constraint.
+ALTER TABLE tblTransaction
+ADD CONSTRAINT defDateOfEntry DEFAULT GETDATE() FOR DateOfEntry
+
+DELETE FROM tblTransaction WHERE EmployeeNumber < 3
+
+INSERT INTO tblTransaction(Amount, DateOfTransaction, EmployeeNumber)
+VALUES (1, '2014-01-01' ,1)
+INSERT INTO tblTransaction(Amount,DateOfTransaction,EmployeeNumber,DateOfEntry)
+VALUES(2, '2014-01-02', 1, '2013-01-01')
+
+SELECT * FROM tblTransaction WHERE EmployeeNumber < 3
+
+--Create a table while adding a CONSTRAINT at the same time
+CREATE TABLE tblTransaction2
+(Amount smallmoney NOT NULL,
+DateOfTransaction smalldatetime NOT NULL,
+EmployeeNumber INT NOT NULL,
+DateOfEntry DATETIME NULL CONSTRAINT tblTransaction_2defDateOfEntry DEFAULT GETDATE()) --CANT use the same constraint name is two different tables, 
+																					   --use the tbl name in the constraint name
+INSERT INTO tblTransaction2(Amount, DateOfTransaction, EmployeeNumber)
+VALUES(1, '2014-01-01', 1)
+
+INSERT INTO tblTransaction2(Amount, DateOfTransaction, EmployeeNumber, DateOfEntry)
+VALUES(1, '2014-01-01', 1, 2013-01-01)
+
+SELECT * FROM tblTransaction2 WHERE EmployeeNumber <3
+
+DROP TABLE tblTransaction2
+
+
+ALTER TABLE tblTransaction
+DROP COLUMN DateOfEntry
+--Cant drop the column due to the fact there is a constraint on it
+
+ALTER TABLE tblTransaction
+DROP CONSTRAINT defDateOfEntry--drop constraint so we can delete the column that had the constraint
+
+--CHECK CONSTRAINT filters an entire row and selects certain criteria you are looking for
+--i.e. to prevent salaries from being entered beyone the regular salaray range. salary >= 15000 AND salary <= 100000
+--i.e. dates inputed are reasonable, cannot input a date 2000 years in the future.
  
 
 
