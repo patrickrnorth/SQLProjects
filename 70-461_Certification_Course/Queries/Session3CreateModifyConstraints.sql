@@ -131,5 +131,26 @@ DROP CONSTRAINT defDateOfEntry--drop constraint so we can delete the column that
 --i.e. to prevent salaries from being entered beyone the regular salaray range. salary >= 15000 AND salary <= 100000
 --i.e. dates inputed are reasonable, cannot input a date 2000 years in the future.
  
+--ALTER TABLE to add a check constraint
+ ALTER TABLE tblTransaction
+ ADD CONSTRAINT chkAmount CHECK (Amount>-1000 AND Amount <1000)
 
+--Cannot insert this row due to being outside the check constraint
+INSERT INTO tblTransaction
+VALUES (1010, '2014-01-01', 1)
 
+INSERT INTO tblTransaction
+VALUES (999, '2014-01-01', 1)
+
+ALTER TABLE tblEmployee WITH NOCHECK --alter table without looking for checks
+ADD CONSTRAINT chkMiddleName CHECK --add check to EmployeeMiddleName
+(REPLACE(EmployeeMiddleName, '.', '') = EmployeeMiddleName OR EmployeeMiddleName IS NULL)
+
+BEGIN TRAN
+	INSERT INTO tblEmployee
+	VALUES(2003, 'A', NULL, 'C', 'D', '2014-01-01', 'Accounts')
+	SELECT * FROM tblEmployee WHERE EmployeeNumber = 2003
+ROLLBACK TRAN
+
+ALTER TABLE tblEmployee WITH NOCHECK
+ADD CONSTRAINT chkDateOfBirth CHECK (DateOfBirth BETWEEN '1900-01-01' and getDate())
